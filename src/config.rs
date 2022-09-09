@@ -1,12 +1,16 @@
-use std::{collections::HashMap, fs::{self, read_dir}, io::Write};
 use std::fs::File;
 use std::path::Path;
+use std::{
+    collections::HashMap,
+    fs::{self, read_dir},
+    io::Write,
+};
 
 use serde::{Deserialize, Serialize};
 
 #[allow(dead_code)]
 #[derive(Deserialize, Serialize)]
-pub(crate) struct Config {
+pub(crate) struct ServerConfig {
     token: String,
     owner: u64,
     max_guilds: usize,
@@ -32,7 +36,7 @@ pub(crate) struct AutoReaction {
 
 #[allow(dead_code)]
 #[derive(Deserialize, Serialize)]
-pub(crate) struct ServerConfig {
+pub(crate) struct DiscordServerConfig {
     guild: u64,
     log: LogInfo,
     autoreactions: Vec<AutoReaction>,
@@ -49,7 +53,7 @@ impl Default for ServerConfig {
     }
 }
 
-impl ServerConfig {
+impl DiscordServerConfig {
     pub(crate) fn load() -> HashMap<u64, Self> {
         // dir doesn't exist
         let servers_dir = read_dir("servers");
@@ -62,7 +66,7 @@ impl ServerConfig {
         for dir in servers_dir {
             let dir = dir.unwrap();
             let content = fs::read_to_string(dir.path()).unwrap();
-            let data: ServerConfig = serde_json::from_str(&content).unwrap();
+            let data: DiscordServerConfig = serde_json::from_str(&content).unwrap();
             map.insert(data.guild, data);
         }
         map
@@ -71,16 +75,25 @@ impl ServerConfig {
         let servers_dir = read_dir("servers");
         if servers_dir.is_err() {
             let _ = fs::create_dir_all("servers");
-            return Err(String::from("unable to read servers directory, failed to create server config file"));
+            return Err(String::from(
+                "unable to read servers directory, failed to create server config file",
+            ));
         }
         let path = format!("servers/{guild}.json");
         if Path::new(&path).exists() {
-            return Err(String::from("config file already exists, do you want to clear it? use /clearconfig"));
+            return Err(String::from(
+                "config file already exists, do you want to clear it? use /clearconfig",
+            ));
         }
         // check if file exists
         let mut file = File::create(path).unwrap();
         let _ = file.set_len(0);
-        file.write_all(serde_json::to_string_pretty(&ServerConfig::default()).unwrap().as_bytes()).unwrap();
+        file.write_all(
+            serde_json::to_string_pretty(&ServerConfig::default())
+                .unwrap()
+                .as_bytes(),
+        )
+        .unwrap();
         Ok(())
     }
     pub(crate) fn remove(guild: u64) -> Result<(), String> {

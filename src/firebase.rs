@@ -1,8 +1,8 @@
-use firestore_db_and_auth::{Credentials, ServiceSession, documents};
+use firestore_db_and_auth::{documents, Credentials, ServiceSession};
+use serde::Deserialize;
 use std::error::Error;
 use std::fmt::Display;
 use std::path::Path;
-use serde::Deserialize;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Debug)]
@@ -49,15 +49,19 @@ pub(crate) struct RegistrationData {
 
 #[derive(Debug)]
 pub(crate) enum FirebaseError {
-    InvalidDataStructure
+    InvalidDataStructure,
 }
 
 type F = FirebaseError;
 impl Display for FirebaseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            F::InvalidDataStructure => "datastructure changed format",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                F::InvalidDataStructure => "datastructure changed format",
+            }
+        )
     }
 }
 
@@ -80,9 +84,10 @@ impl Firebase {
     }
     // todo change to result
     pub(crate) fn fetch_registration(&self) -> Result<(), FirebaseError> {
-        let values: documents::List<RegistrationData, _> = documents::list(&self.session, "registration_data");
+        let values: documents::List<RegistrationData, _> =
+            documents::list(&self.session, "registration_data");
         for value in values {
-            let (data, doc) = match value {
+            let (data, _doc) = match value {
                 Ok(v) => v,
                 Err(_) => return Err(F::InvalidDataStructure),
             };

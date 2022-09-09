@@ -1,12 +1,11 @@
-use serenity::prelude::*;
-use serenity::model::channel::Message;
-use serenity::framework::standard::CommandResult;
+use crate::config::DiscordServerConfig;
+use crate::START_TIMESTAMP;
 use serenity::framework::standard::macros::{command, hook};
+use serenity::framework::standard::CommandResult;
+use serenity::model::channel::Message;
+use serenity::prelude::*;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
-use crate::START_TIMESTAMP;
-use crate::config::ServerConfig;
-
 
 #[command]
 async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
@@ -17,11 +16,12 @@ async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn confignew(ctx: &Context, msg: &Message) -> CommandResult {
     let id = msg.guild_id.unwrap().0;
-    let result = ServerConfig::create(id);
+    let result = DiscordServerConfig::create(id);
     match result {
         Ok(_) => msg.reply(ctx, format!("created config for {id}")),
         Err(m) => msg.reply(ctx, format!("Error occured for {id}: {m}")),
-    }.await?;
+    }
+    .await?;
     Ok(())
 }
 
@@ -33,7 +33,11 @@ async fn clearconfig(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn uptime(ctx: &Context, msg: &Message) -> CommandResult {
     if let Ok(v) = SystemTime::now().duration_since(UNIX_EPOCH) {
-        msg.reply(ctx, format!("Uptime in seconds: {}", v.as_secs() - *START_TIMESTAMP)).await?;
+        msg.reply(
+            ctx,
+            format!("Uptime in seconds: {}", v.as_secs() - *START_TIMESTAMP),
+        )
+        .await?;
     } else {
         msg.reply(ctx, "failed to retrieve uptime").await?;
     }
