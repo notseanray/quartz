@@ -1,7 +1,8 @@
 use crate::config::DiscordServerConfig;
 use crate::START_TIMESTAMP;
+use chrono::{Utc, Datelike};
 use serenity::framework::standard::macros::{command, hook};
-use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::{CommandResult, Args};
 use serenity::model::channel::Message;
 use serenity::prelude::*;
 use std::time::SystemTime;
@@ -10,6 +11,21 @@ use std::time::UNIX_EPOCH;
 #[command]
 async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, "Pong!").await?;
+    Ok(())
+}
+
+// fn query_frc() {
+//
+// }
+
+#[command]
+async fn frcstats(_ctx: &Context, _msg: &Message, args: Args) -> CommandResult {
+    let district = args.raw().find(|x| x == &"district").unwrap_or("PCH");
+    let teamNumber = args.raw().find(|x| x == &"team").unwrap_or("9293");
+    let body = reqwest::get(format!("https://frc-api.firstinspires.org/v3.0/{}/rankings/district?districtCode={district}", Utc::now().year()))
+        .await?
+        .text()
+        .await?;
     Ok(())
 }
 

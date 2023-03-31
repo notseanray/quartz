@@ -14,3 +14,8 @@ serenity = { version = "0.11.5", default-features = false, features = ["client",
 lazy_static = "1.4.0"
 envy = "0.4.2"
 async_once = "0.2.6"
+reqwest = "0.11.16"
+chrono = "0.4.24"
+rand = "0.8.5"
+svg = "0.13.1"
+nsvg = "0.5.1"

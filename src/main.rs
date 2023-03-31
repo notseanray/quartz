@@ -20,12 +20,16 @@ mod firebase;
 use async_once::AsyncOnce;
 use std::error::Error;
 
+mod models;
+
+mod markov;
+
 mod commands;
 use commands::*;
 mod config;
 
 #[group]
-#[commands(ping, uptime)]
+#[commands(ping, uptime, frcstats)]
 pub(crate) struct General;
 
 lazy_static! {
